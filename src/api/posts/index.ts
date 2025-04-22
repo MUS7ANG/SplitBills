@@ -1,7 +1,6 @@
-import { collection, addDoc, query, orderBy, where, getDocs } from 'firebase/firestore'
+import {collection, addDoc, query, orderBy, where, getDocs, doc, getDoc} from 'firebase/firestore'
 import {IPost} from '../../types'; 
 import { db } from '../../firebase'
-import axios from "axios";
 
 export const createPost = async (post:Omit<IPost, 'id'>) => {
     const postsCollection = collection(db, 'posts');
@@ -38,7 +37,17 @@ export const getPosts = async (userId?:string):Promise<IPost[]> => {
     
 }
 
-export const getPost = async (id: string): Promise<IPost> => {
-    const response = await axios.get(`/posts/${id}`);
-    return response.data;
+export const getPost = async (id: string): Promise<IPost | null> => {
+    try {
+        const postRef = doc(db, "posts", id);
+        const postSnap = await getDoc(postRef);
+        console.log("Post exists:", postSnap.exists(), "Data:", postSnap.data());
+        if (postSnap.exists()) {
+            return { id: postSnap.id, ...postSnap.data() } as IPost;
+        }
+        return null;
+    } catch (error) {
+        console.error("Error in getPost:", error);
+        throw error;
+    }
 };

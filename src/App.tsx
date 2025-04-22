@@ -34,6 +34,8 @@ export const App = () => {
                        "/" element={<PrivateRoute element={<Posts />} />} />
               <Route path=
                          "/post" element={<PrivateRoute element={<Post />} />} />
+              <Route path=
+                         "/post/:id" element={<PrivateRoute element={<Post />} />} />
             <Route path=
                        "/add-post" element={<PrivateRoute element={<CreatePost />} />}
             />

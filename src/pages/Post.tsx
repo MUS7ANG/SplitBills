@@ -49,6 +49,7 @@ const PostPage = () => {
         };
         fetchPost();
     }, [id, error]);
+    console.log("PostDetail received:", post);
 
     return (
         <Container maxWidth="md">
