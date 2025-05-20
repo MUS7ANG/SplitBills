@@ -33,6 +33,9 @@ const Header: React.FC = () => {
                             <Button color="inherit" component={Link} to="/profile">
                                 Профиль
                             </Button>
+                            <Button color="inherit" component={Link} to="/family">
+                                Семья
+                            </Button>
                             <Button color="inherit" onClick={handleLogout}>
                                 Выйти
                             </Button>

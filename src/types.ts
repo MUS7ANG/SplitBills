@@ -1,20 +1,37 @@
-export interface IUser { //oshibka mozet bit
-    email: string | null;
+export interface Meal {
     id: string;
-    name?: string;
+    title: string;
+    description?: string;
+    price: number;
+    image: string;
+    category?: string;
 }
 
-
-export interface IProfile {
+export interface Category {
     id: string;
-    userId: string;
     name: string;
-    lastName: string;
-    role: "admin" | "user";
 }
 
 export interface User {
     id: string;
     email: string;
     role: 'user' | 'admin';
+    familyId?: string;
+}
+
+export interface Family {
+    id: string;
+    name: string;
+    members: string[];
+    createdBy: string;
+}
+
+export interface Payment {
+    id: string;
+    familyId: string;
+    totalAmount: number;
+    splitAmount: number;
+    items: { mealId: string; quantity: number; price: number; title: string }[];
+    createdAt: string;
+    createdBy: string;
 }

@@ -34,6 +34,7 @@ onAuthStateChanged(auth, async (firebaseUser) => {
                 id: firebaseUser.uid,
                 email: userData.email,
                 role: userData.role,
+                familyId: userData.familyId,
             });
         }
     } else {

@@ -1,10 +1,11 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import {doc, getDoc, setDoc, collection, addDoc, updateDoc} from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuthStore } from './useAuthStore';
+import { Payment } from '../types';
 
-export interface CartItem {
+interface CartItem {
     mealId: string;
     quantity: number;
     price: number;
@@ -18,6 +19,7 @@ interface CartState {
     clearCart: () => void;
     loadCart: () => Promise<void>;
     saveCart: () => Promise<void>;
+    createPayment: () => Promise<void>;
 }
 
 export const useCartStore = create<CartState>()(
@@ -55,6 +57,27 @@ export const useCartStore = create<CartState>()(
                 if (user) {
                     await setDoc(doc(db, 'carts', user.id), { items: get().items }, { merge: true });
                 }
+            },
+            createPayment: async () => {
+                const { user } = useAuthStore.getState();
+                if (!user || !user.familyId) throw new Error('Пользователь не в семье');
+                const familyDoc = await getDoc(doc(db, 'families', user.familyId));
+                if (!familyDoc.exists()) throw new Error('Семья не найдена');
+                const family = familyDoc.data();
+                const totalAmount = get().items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+                const splitAmount = totalAmount / family.members.length;
+                const payment: Payment = {
+                    id: '',
+                    familyId: user.familyId,
+                    totalAmount,
+                    splitAmount,
+                    items: get().items,
+                    createdAt: new Date().toISOString(),
+                    createdBy: user.id,
+                };
+                const paymentRef = await addDoc(collection(db, 'payments'), payment);
+                await updateDoc(doc(db, 'payments', paymentRef.id), { id: paymentRef.id });
+                set({ items: [] });
             },
         }),
         {

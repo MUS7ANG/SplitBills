@@ -7,10 +7,10 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import CreateProfile from './pages/CreateProfile';
-
 import Meals from './pages/Meals';
 import Meal from './pages/Meal';
 import Cart from './pages/Cart';
+import FamilyManagement from './pages/FamilyManagement';
 import ProtectedRoute from './components/ProtectedRoute';
 
 const App: React.FC = () => {
@@ -45,6 +45,14 @@ const App: React.FC = () => {
                         element={
                             <ProtectedRoute>
                                 <Cart />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/family"
+                        element={
+                            <ProtectedRoute>
+                                <FamilyManagement />
                             </ProtectedRoute>
                         }
                     />

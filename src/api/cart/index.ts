@@ -1,12 +1,9 @@
-import axios from 'axios';
-import { CartItem } from '../../store/useCartStore';
+import { useCartStore } from '../../store/useCartStore';
 
-export const syncCart = async (items: CartItem[], token: string): Promise<void> => {
+export const syncCart = async (): Promise<void> => {
     try {
-        await axios.post('https://your-backend-api/cart', { items }, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+        await useCartStore.getState().createPayment();
     } catch (error: any) {
-        throw new Error(error.response?.data?.message || 'Failed to sync cart');
+        throw new Error(error.message || 'Ошибка создания платежа');
     }
 };

@@ -7,9 +7,9 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-    const { user, accessToken } = useAuthStore();
+    const { user } = useAuthStore();
 
-    if (!user || !accessToken) {
+    if (!user) {
         console.log('ProtectedRoute: No user or token, redirecting to login');
         return <Navigate to="/login" replace />;
     }
