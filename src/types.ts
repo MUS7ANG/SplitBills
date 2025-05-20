@@ -1,16 +1,9 @@
-export interface IUser {
+export interface IUser { //oshibka mozet bit
     email: string | null;
     id: string;
     name?: string;
 }
 
-export interface IPost {
-    id: string;
-    content: string;
-    userId: string;
-    email: string;
-    createdAt: string;
-}
 
 export interface IProfile {
     id: string;
@@ -18,4 +11,10 @@ export interface IProfile {
     name: string;
     lastName: string;
     role: "admin" | "user";
+}
+
+export interface User {
+    id: string;
+    email: string;
+    role: 'user' | 'admin';
 }

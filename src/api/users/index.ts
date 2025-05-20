@@ -1,38 +1,54 @@
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { IProfile } from "../../types";
-import { db } from "../../firebase";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateEmail } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../../firebase';
+import { User } from '../../types';
 
-export const setUser = async (
-    userId: string,
-    userData: Omit<IProfile, "id" | "userId">
-) => {
+interface AuthResponse {
+    user: User;
+}
+
+export const register = async (email: string, password: string): Promise<AuthResponse> => {
     try {
-        const userDoc = doc(db, "users", userId);
-        await setDoc(userDoc, {
-        ...userData,
-        createdAt: new Date(),
-        userId: userId,
-    });
-    } catch (error) {
-        console.error("Error creating user:", error);
-        return null;
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        await setDoc(doc(db, 'users', user.uid), {
+            email: user.email,
+            role: 'user',
+        });
+        return {
+            user: { id: user.uid, email: user.email!, role: 'user' },
+        };
+    } catch (error: any) {
+        throw new Error(error.message || 'Ошибка регистрации');
     }
 };
 
-
-export const getUserById = async (userId: string): Promise<IProfile | null> => {
+export const login = async (email: string, password: string): Promise<AuthResponse> => {
     try {
-        const userDoc = doc(db, "users", userId);
-        const userSnapshot = await getDoc(userDoc);
-        if (userSnapshot.exists()) {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+            const userData = userDoc.data();
             return {
-                id: userSnapshot.id,
-                ...userSnapshot.data(),
-            } as IProfile;
+                user: { id: user.uid, email: userData.email, role: userData.role },
+            };
+        } else {
+            throw new Error('Данные пользователя не найдены');
         }
-    return null;
-        } catch (error) {
-            console.error("Error getting user:", error);
-            return null;
-        }
-    };
+    } catch (error: any) {
+        throw new Error(error.message || 'Ошибка входа');
+    }
+};
+
+export const updateProfile = async (data: { email: string }, userId: string): Promise<User> => {
+    try {
+        const user = auth.currentUser;
+        if (!user) throw new Error('Пользователь не авторизован');
+        await updateEmail(user, data.email);
+        await setDoc(doc(db, 'users', userId), { email: data.email, role: 'user' }, { merge: true });
+        return { id: userId, email: data.email, role: 'user' };
+    } catch (error: any) {
+        throw new Error(error.message || 'Ошибка обновления профиля');
+    }
+};

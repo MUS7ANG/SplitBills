@@ -1,64 +1,53 @@
-import { useState } from 'react';
-import { Button, TextField, Container, Typography, Box } from '@mui/material';
-import { emailSignIn } from '../firebase';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { login } from '../api/users';
+import { Container, Typography, TextField, Button, Box } from '@mui/material';
 
-import { Link, useNavigate } from 'react-router-dom';
-import {useAuthStore} from '../store/useAuthStore.ts';
-import { getUserById } from '../api/users/index.ts';
-
-export const Login = () => {
+const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { setUser, setProfile } = useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { user } = await emailSignIn(email, password);
-      setUser({email: user.email, id: user.uid})
-      if (user.uid) {
-        const userFull = await getUserById(user.uid);
-      if (userFull) {
-        setProfile(userFull);
-  }
-}
-navigate('/')
-    } catch (error) {
-      setError(`Error: ${error}`);
+      await login(email, password);
+      navigate('/profile');
+    } catch (err: any) {
+      setError(err.message);
     }
   };
 
   return (
-    <Container maxWidth="xs">
-      <Box sx={{ mt: 8 }}>
-        <Typography variant="h4" align="center">Login</Typography>
-        <form onSubmit={handleSubmit}>
+      <Container sx={{ mt: 4, maxWidth: '400px' }}>
+        <Typography variant="h4" gutterBottom>
+          Вход
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <TextField
-            fullWidth
-            margin="normal"
-            label="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              fullWidth
+              required
           />
           <TextField
-            fullWidth
-            margin="normal"
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+              label="Пароль"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              fullWidth
+              required
           />
           {error && <Typography color="error">{error}</Typography>}
-          <Button fullWidth variant="contained" type="submit" sx={{ mt: 2 }}>
-            Login
+          <Button type="submit" variant="contained">
+            Войти
           </Button>
-          <Typography sx={{ mt: 2 }}>
-            Don't have an account? <Link to="/register">Register</Link>
-          </Typography>
-        </form>
-      </Box>
-    </Container>
+        </Box>
+      </Container>
   );
 };
+
+export default Login;

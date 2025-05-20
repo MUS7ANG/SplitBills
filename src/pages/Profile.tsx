@@ -1,62 +1,27 @@
-import {useAuthStore} from "../store/useAuthStore.ts";
-import { Container, Typography, TextField, Button, Box } from '@mui/material';
-import {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
+import React from 'react';
+import { useAuthStore } from '../store/useAuthStore';
+import { Container, Typography, Button } from '@mui/material';
+import { Link } from 'react-router-dom';
 
-export const Profile = () => {
-    const { user, setUser } = useAuthStore();
-    const navigate = useNavigate();
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-
-    useEffect(() => {
-        if (user) {
-            setName(user.name ?? '');
-            setEmail(user.email ?? '');
-        } else {
-            navigate('/login');
-        }
-    }, [user, navigate]);
-
-    const handleUpdate = () => {
-        if (user) {
-            const updatedUser = { ...user, name, email };
-            setUser(updatedUser);
-        }
-    };
-
-    if (!user) return null;
+const Profile: React.FC = () => {
+    const { user } = useAuthStore();
 
     return (
-        <Container maxWidth="sm" sx={{ mt: 4 }}>
+        <Container sx={{ mt: 4 }}>
             <Typography variant="h4" gutterBottom>
-                Мой профиль
+                Профиль
             </Typography>
-            <Box sx={{ mb: 2 }}>
-                <Typography><strong>ID:</strong> {user.id}</Typography>
-                <Typography><strong>Имя:</strong> {user.name}</Typography>
-                <Typography><strong>Email:</strong> {user.email}</Typography>
-            </Box>
-            <Typography variant="h6" gutterBottom>
-                Редактировать данные
-            </Typography>
-            <TextField
-                label="Имя"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                fullWidth
-                margin="normal"
-            />
-            <TextField
-                label="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                fullWidth
-                margin="normal"
-            />
-            <Button variant="contained" onClick={handleUpdate} sx={{ mt: 2 }}>
-                Обновить
-            </Button>
+            {user ? (
+                <>
+                    <Typography variant="h6">Email: {user.email}</Typography>
+                    <Typography variant="h6">Роль: {user.role}</Typography>
+                    <Button variant="contained" component={Link} to="/create-profile">
+                        Редактировать профиль
+                    </Button>
+                </>
+            ) : (
+                <Typography>Пользователь не авторизован</Typography>
+            )}
         </Container>
     );
 };
